@@ -10,6 +10,8 @@ setup(
         "pydantic==1.8.2",
         "aiogram==2.14.3",
         "asyncpg==0.24.0",
+        "aioredis==1.3.1",
+        "python-dotenv==0.20.0"
 
     ],
     extras_require={

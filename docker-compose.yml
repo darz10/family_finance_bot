@@ -1,0 +1,51 @@
+version: '3.7'
+
+x-env:
+  &default-env
+  env_file:
+    - .env
+
+x-volumes:
+  &default-volumes
+  volumes:
+    - .:/app
+
+x-app:
+  &default-app
+  build: .
+  <<: *default-env
+  <<: *default-volumes
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    ports:
+      - "5432"
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+      - pgdata:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${dbuser}
+      - POSTGRES_PASSWORD=${dbpassword}
+      - POSTGRES_DB=${dbname}
+
+  redis:
+    image: "redis:alpine"
+    restart: unless-stopped
+    expose:
+      - 6379
+
+  bot:
+    restart: always
+    command: bash -c " python3 main.py"
+    links:
+      - "db:db"
+      - "redis:redis"
+    depends_on:
+      - db
+      - redis
+    <<: *default-app
+
+volumes:
+  pgdata:
